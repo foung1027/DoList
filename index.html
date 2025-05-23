@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日待辦任務</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 500px;
+      margin: auto;
+    }
+    h1, #stats{
+      text-align: center;
+    }
+    #stats {
+      color: #555;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    input {
+      padding: 0.5rem;
+      font-size: 1rem;
+      width: 70%;
+    }
+    #input-area {
+      margin-bottom: 1rem;
+      display: flex;  /* 讓裡面的東西水平置中 */
+      justify-content: center;  /* 元素之間的間距 */
+      gap: 0.5rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      margin-left: 0.5rem;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+    }
+    li.completed span {
+      text-decoration: line-through;
+      color: #888;
+    }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ff4444;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      color: #cc0000;
+    }
+    #toggle-guide {
+      background: #f0f0f0;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #toggle-guide:hover {
+      background: #e0e0e0;
+    }
+    #guide-content ul {
+      padding-left: 1rem;
+    }
+    #notice-container {
+      background-color:#ECF5FF;    /*背景色*/
+      border: 1px solid #bcdffb;       /* 邊框 */
+      color: #333333;                /* 文字 */
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);  /* 淺陰影，提升層次感 */
+      margin-top: 1.5rem;
+    }
+    #notice-header {
+      padding: 0.6rem 0.75rem;
+      cursor: pointer;
+      font-weight: bold;
+      user-select: none;
+    }
+    #notice-header:hover {      
+      background-color: #D6EFFF;
+      color: #1A5276;
+      cursor: pointer;
+    }
+    #notice-content {
+      padding: 0.75rem;
+      border-top: 2px solid #ACD6FF;
+      /*display: none; /* 預設收合 */
+    }
+    
+  </style>
+</head>
+<body>
+  <h1>今日待辦任務</h1>
+  <p id="stats">共 0 項，完成 0 項，未完成 0 項</p>
+  <div id="input-area">
+    <!--輸入框-->
+    <input type="text" id="todo-input" placeholder="請輸入待辦任務" />
+    <!--新增的按鈕-->
+    <button id="add-btn">新增</button>
+  </div>
+
+<div id="notice-container">
+  <div id="notice-header">📌 使用導覽（收合） </div>
+  <div id="notice-content">
+    哈囉！讓我們一分鐘快速導覽功能吧 😊</br>
+    <p>
+      [基本功能]</br>
+      👉🏻 輸入代辦事項，按下Enter「新增」按鈕</br>
+      👉🏻 新增任務後點一下變成刪除線＋淺色 標示完成</br>
+      👉🏻 點兩下跳出訊息可以重新編輯～</br>
+      👉🏻 按住任務進行拖曳，方便安排先後順序！！
+    </p>
+    <p>
+      [其他功能]</br>
+      👉🏻共 0 項，完成 0 項，未完成 0 項，這邊會負責計算目前為止任務狀況喔！
+    </p>
+  </div>
+</div>
+
+  <ul id="todo-list"></ul>
+
+  <script>
+    const input = document.getElementById("todo-input");
+    const addBtn = document.getElementById("add-btn");
+    const todoList = document.getElementById("todo-list");
+
+    let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+    function renderTodos() {
+      todoList.innerHTML = "";
+      todos.forEach(function (todo) {
+        const li = createTodoElement(todo.text, todo.completed);
+        todoList.appendChild(li);
+      });
+      updateStats();
+    }
+
+    function createTodoElement(text, completed = false) {
+      const li = document.createElement("li");
+      if (completed) li.classList.add("completed");
+
+      const span = document.createElement("span");
+      span.textContent = text;
+
+      span.addEventListener("click", function () {
+        li.classList.toggle("completed");
+        const index = Array.from(todoList.children).indexOf(li);
+        todos[index].completed = li.classList.contains("completed");
+        saveTodos();
+        updateStats();
+      });
+
+      span.addEventListener("dblclick", function () {
+        const newText = prompt("請輸入新的內容：", text);
+        if (newText !== null && newText.trim() !== "") {
+          span.textContent = newText.trim();
+          const index = Array.from(todoList.children).indexOf(li);
+          todos[index].text = newText.trim();
+          saveTodos();
+        }
+      });
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "✕";
+      delBtn.className = "delete-btn";
+      delBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        const index = Array.from(todoList.children).indexOf(li);
+        todos.splice(index, 1);
+        saveTodos();
+        renderTodos();
+      });
+
+      li.appendChild(span);
+      li.appendChild(delBtn);
+
+      li.setAttribute("draggable", true);
+      li.addEventListener("dragstart", dragStart);
+      li.addEventListener("dragover", dragOver);
+      li.addEventListener("drop", drop);
+
+      return li;
+    }
+
+    function saveTodos() {
+      localStorage.setItem("todos", JSON.stringify(todos));
+    }
+
+    addBtn.addEventListener("click", function () {
+      const text = input.value.trim();
+      if (text !== "") {
+        todos.push({ text: text, completed: false });
+        input.value = "";
+        renderTodos();
+        saveTodos();
+      }
+    });
+
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        addBtn.click();
+      }
+    });
+
+    let draggedItem = null;
+
+    function dragStart(e) {
+      draggedItem = e.target;
+    }
+
+    function dragOver(e) {
+      e.preventDefault();
+      const target = e.target.closest("li");
+      if (target && target !== draggedItem) {
+        const children = Array.from(todoList.children);
+        const draggedIndex = children.indexOf(draggedItem);
+        const targetIndex = children.indexOf(target);
+
+        if (draggedIndex < targetIndex) {
+          todoList.insertBefore(draggedItem, target.nextSibling);
+        } else {
+          todoList.insertBefore(draggedItem, target);
+        }
+
+        const newTodos = Array.from(todoList.children).map(li => {
+          const text = li.querySelector("span").textContent;
+          const completed = li.classList.contains("completed");
+          return { text, completed };
+        });
+        todos = newTodos;
+        saveTodos();
+      }
+    }
+
+    function drop() {
+      draggedItem = null;
+    }
+
+    function updateStats() {
+      const total = todos.length;
+      const completed = todos.filter(todo => todo.completed).length;
+      const uncompleted = total - completed;
+      document.getElementById("stats").textContent =
+        `共 ${total} 項，完成 ${completed} 項，未完成 ${uncompleted} 項`;
+    }
+
+    window.addEventListener("DOMContentLoaded", renderTodos);
+
+    const noticeHeader = document.getElementById("notice-header");
+    const noticeContent = document.getElementById("notice-content");
+
+    noticeHeader.addEventListener("click", function () {
+      const isVisible = noticeContent.style.display !== "none";
+      noticeContent.style.display = isVisible ? "none" : "block";
+      noticeHeader.textContent = isVisible ? "📌使用導覽（展開）" : "📌使用導覽（收合）";
+    });
+
+  </script>
+</body>
+</html>
