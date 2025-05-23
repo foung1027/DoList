@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日待辦任務</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>今日待辦任務</h1>
+  <p id="stats">共 0 項，完成 0 項，未完成 0 項</p>
+  <div id="input-area">
+    <input type="text" id="todo-input" placeholder="請輸入待辦任務" />
+    <button id="add-btn">新增</button>
+  </div>
+
+  <div id="notice-container">
+    <div id="notice-header">📌 使用導覽（收合）</div>
+    <div id="notice-content">
+      哈囉！讓我們一分鐘快速導覽功能吧 😊<br />
+      <p>
+        [基本功能]<br />
+        👉🏻 輸入代辦事項，按下Enter或「新增」按鈕<br />
+        👉🏻 點一下任務會標示完成（刪除線）<br />
+        👉🏻 點兩下可重新編輯內容<br />
+        👉🏻 任務可以拖曳調整順序
+      </p>
+      <p>
+        [其他功能]<br />
+        👉🏻 上方統計區會即時顯示任務完成狀態！
+      </p>
+    </div>
+  </div>
+
+  <ul id="todo-list"></ul>
+
+  <script src="script.js"></script>
+</body>
+</html>
