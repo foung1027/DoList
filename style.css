@@ -16,6 +16,7 @@ input {
   padding: 0.5rem;
   font-size: 1rem;
   width: 70%;
+  border-radius: 16px;
 }
 #input-area {
   margin-bottom: 1rem;
@@ -76,3 +77,33 @@ li.completed span {
   padding: 0.75rem;
   border-top: 2px solid #ACD6FF;
 }
+.clear-btn {
+  padding: 10px 16px;
+  font-size: 16px;
+  line-height: 1.2;
+  text-align: center;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.clear-btn:hover {
+  background-color: #a52b22;
+}
+.add-btn {
+  padding: 10px 16px;
+  font-size: 16px;
+  background-color: #9e9e9e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+.add-btn:hover {
+  background-color: #757575;
+}
+

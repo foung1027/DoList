@@ -13,6 +13,19 @@ function renderTodos() {
   updateStats();
 }
 
+new Sortable(todoList, {
+  animation: 150,
+  onEnd: function () {
+    const newTodos = Array.from(todoList.children).map(li => {
+      const text = li.querySelector("span").textContent;
+      const completed = li.classList.contains("completed");
+      return { text, completed };
+    });
+    todos = newTodos;
+    saveTodos();
+  }
+});
+
 function createTodoElement(text, completed = false) {
   const li = document.createElement("li");
   if (completed) li.classList.add("completed");
@@ -68,9 +81,9 @@ function addTodo() {
   const text = input.value.trim();
   if (text !== "") {
     todos.push({ text: text, completed: false });
-    input.value = "";
-    renderTodos();
-    saveTodos();
+    saveTodos();         // 先儲存
+    renderTodos();       // 再重新渲染
+    input.value = "";    // ✅ 最後清空輸入框
   }
 }
 
@@ -78,10 +91,21 @@ addBtn.addEventListener("click", addTodo);
 
 input.addEventListener("keydown", function (event) {
   if (event.key === "Enter") {
-    event.preventDefault();
-    addTodo();
+    event.preventDefault(); // ✅ 保留這行，避免跳頁或表單送出
+    addTodo();              // ✅ 呼叫 addTodo 就好
   }
 });
+
+const clearBtn = document.getElementById("clear-btn");
+
+clearBtn.addEventListener("click", function () {
+  if (confirm("確定要清除所有待辦事項嗎？")) {
+    todos = [];
+    saveTodos();    // 清空後儲存
+    renderTodos();  // 重新渲染
+  }
+});
+
 
 let draggedItem = null;
 
@@ -124,13 +148,13 @@ function updateStats() {
     `共 ${total} 項，完成 ${completed} 項，未完成 ${uncompleted} 項`;
 }
 
-window.addEventListener("DOMContentLoaded", renderTodos);
+window.addEventListener("DOMContentLoaded", function () {
+  const noticeHeader = document.getElementById("notice-header");
+  const noticeContent = document.getElementById("notice-content");
 
-const noticeHeader = document.getElementById("notice-header");
-const noticeContent = document.getElementById("notice-content");
-
-noticeHeader.addEventListener("click", function () {
-  const isVisible = noticeContent.style.display !== "none";
-  noticeContent.style.display = isVisible ? "none" : "block";
-  noticeHeader.textContent = isVisible ? "📌 使用導覽（展開）" : "📌 使用導覽（收合）";
+  noticeHeader.addEventListener("click", function () {
+    const isVisible = noticeContent.style.display !== "none";
+    noticeContent.style.display = isVisible ? "none" : "block";
+    noticeHeader.textContent = isVisible ? "📌 使用導覽（展開）" : "📌 使用導覽（收合）";
+  });
 });
