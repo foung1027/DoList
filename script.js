@@ -158,3 +158,23 @@ window.addEventListener("DOMContentLoaded", function () {
     noticeHeader.textContent = isVisible ? "📌 使用導覽（展開）" : "📌 使用導覽（收合）";
   });
 });
+
+const createSelect = document.getElementById("category-select");
+
+function addTodo(){
+  const text = input.value.trim();
+  const category = createSelect.value;
+
+  if(text !== ""){
+    todos.push({text,category,completed:false});
+    saveTodos();
+    renderTodos();
+    input.value ="";
+  }
+}
+
+const categoryTag = document.createElement("small");
+categoryTag.textContent =  `[${category}]`;
+categoryTag.style.marginRight = "0.5rem";
+
+li.insertBefore(categoryTag,span);
